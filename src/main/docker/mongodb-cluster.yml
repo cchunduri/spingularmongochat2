@@ -1,0 +1,16 @@
+version: '2'
+services:
+  spingularmongochat2-mongodb:
+    image: mongo:4.0.9
+    ports:
+      - '27017:27017'
+    command: mongos --configdb spingularmongochat2-mongodb-config
+  spingularmongochat2-mongodb-node:
+    build:
+      context: .
+      dockerfile: mongodb/MongoDB.Dockerfile
+    command: mongod --replSet rs1 --noprealloc --smallfiles
+  spingularmongochat2-mongodb-config:
+    image: mongo:4.0.9
+    container_name: spingularmongochat2-mongodb-config
+    command: mongod --noprealloc --smallfiles --configsvr --dbpath /data/db
