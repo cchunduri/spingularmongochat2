@@ -3,6 +3,7 @@ package com.spingular.chat.web.websocket;
 import com.spingular.chat.security.SecurityUtils;
 import com.spingular.chat.service.ChatmessageService;
 import com.spingular.chat.service.dto.ChatmessageDTO;
+import com.spingular.chat.web.rest.ChatmessageResource;
 import com.spingular.chat.web.rest.errors.BadRequestAlertException;
 import com.spingular.chat.web.websocket.dto.MessageDTO;
 
@@ -21,6 +22,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
@@ -42,6 +44,8 @@ public class ChatService implements ApplicationListener<SessionDisconnectEvent> 
     private final SimpMessageSendingOperations messagingTemplate;
     
     private ChatmessageService chatmessageService;
+    
+    private ChatmessageResource chatmessageResource;
     
     private static final String ENTITY_NAME = "chatmessage";
     
@@ -67,33 +71,62 @@ public class ChatService implements ApplicationListener<SessionDisconnectEvent> 
 
     @MessageMapping("/chat")
     @SendTo("/chat/public")
-//    @MessageExceptionHandler()
     public MessageDTO sendChat(@Payload MessageDTO messageDTO, StompHeaderAccessor stompHeaderAccessor, Principal principal) throws URISyntaxException {
         messageDTO.setUserLogin(principal.getName());
-        createChatmessage(messageDTO);
-//        try {
-//			createChatmessage(messageDTO);
-//		} catch (URISyntaxException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-        return setupMessageDTO(messageDTO, stompHeaderAccessor, principal);
-    }
-    
-//    TEST 2
-    @MessageExceptionHandler()
-    public void createChatmessage(MessageDTO messageDTO) throws URISyntaxException {
+    	System.out.println("! ENTERING:  createChatmessage ???????????????????????????????????????????!" + messageDTO);
     	ChatmessageDTO chatmessageDTO = new ChatmessageDTO();
     	chatmessageDTO.setMessage(messageDTO.getMessage());
     	chatmessageDTO.setTime(dateTimeFormatter.format(ZonedDateTime.now()));
     	chatmessageDTO.setUserLogin(messageDTO.getUserLogin());
     	System.out.println("! chatmessageDTO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + chatmessageDTO);
     	log.debug("REST request to save Chatmessage : {}", chatmessageDTO);
-        if (chatmessageDTO.getId() != null) {
-            throw new BadRequestAlertException("A new chatmessage cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        chatmessageService.save(chatmessageDTO);
+        createChatmessage(chatmessageDTO);
+        return setupMessageDTO(messageDTO, stompHeaderAccessor, principal);
     }
+
+	// TEST 3
+	@PostMapping("/chatmessages")
+	public ResponseEntity<ChatmessageDTO> createChatmessage(@RequestBody ChatmessageDTO chatmessageDTO) throws URISyntaxException {
+		log.debug("REST request to save Chatmessage : {}", chatmessageDTO);
+		if (chatmessageDTO.getId() != null) {
+			throw new BadRequestAlertException("A new chatmessage cannot already have an ID", ENTITY_NAME, "idexists");
+		}
+		ChatmessageDTO result = chatmessageService.save(chatmessageDTO);
+		System.out.println("! RESULT:  createChatmessage ???????????????????????????????????????????!" + result);
+		return ResponseEntity
+				.created(new URI("/api/chatmessages/" + result.getId())).headers(HeaderUtil
+						.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+				.body(result);
+	} 
+////    TEST 2
+////    @MessageExceptionHandler()
+//    public void createChatmessage(MessageDTO messageDTO) throws URISyntaxException {
+//    	System.out.println("! ENTERING:  createChatmessage ???????????????????????????????????????????!" + messageDTO);
+//    	ChatmessageDTO chatmessageDTO = new ChatmessageDTO();
+//    	chatmessageDTO.setMessage(messageDTO.getMessage());
+//    	chatmessageDTO.setTime(dateTimeFormatter.format(ZonedDateTime.now()));
+//    	chatmessageDTO.setUserLogin(messageDTO.getUserLogin());
+//    	System.out.println("! chatmessageDTO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + chatmessageDTO);
+//    	log.debug("REST request to save Chatmessage : {}", chatmessageDTO);
+//        if (chatmessageDTO.getId() != null) {
+//            throw new BadRequestAlertException("A new chatmessage cannot already have an ID", ENTITY_NAME, "idexists");
+//        }
+////        chatmessageService.save(chatmessageDTO);
+//        chatmessageResource.createChatmessage(chatmessageDTO);
+//    }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+//    @PostMapping("/chatmessages")
+//    public ResponseEntity<ChatmessageDTO> createChatmessage(@RequestBody ChatmessageDTO chatmessageDTO) throws URISyntaxException {
+//        log.debug("REST request to save Chatmessage : {}", chatmessageDTO);
+//        if (chatmessageDTO.getId() != null) {
+//            throw new BadRequestAlertException("A new chatmessage cannot already have an ID", ENTITY_NAME, "idexists");
+//        }
+//        ChatmessageDTO result = chatmessageService.save(chatmessageDTO);
+//        return ResponseEntity.created(new URI("/api/chatmessages/" + result.getId()))
+//            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+//            .body(result);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
     
 //    TEST1  
 //    public ResponseEntity<ChatmessageDTO> createChatmessage(@RequestBody MessageDTO messageDTO) throws URISyntaxException {
