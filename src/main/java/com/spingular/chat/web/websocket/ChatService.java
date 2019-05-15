@@ -67,20 +67,22 @@ public class ChatService implements ApplicationListener<SessionDisconnectEvent> 
 
     @MessageMapping("/chat")
     @SendTo("/chat/public")
-    @MessageExceptionHandler()
-    public MessageDTO sendChat(@Payload MessageDTO messageDTO, StompHeaderAccessor stompHeaderAccessor, Principal principal) {
+//    @MessageExceptionHandler()
+    public MessageDTO sendChat(@Payload MessageDTO messageDTO, StompHeaderAccessor stompHeaderAccessor, Principal principal) throws URISyntaxException {
         messageDTO.setUserLogin(principal.getName());
-        try {
-			createChatmessage(messageDTO);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        createChatmessage(messageDTO);
+//        try {
+//			createChatmessage(messageDTO);
+//		} catch (URISyntaxException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
         return setupMessageDTO(messageDTO, stompHeaderAccessor, principal);
     }
-
+    
+//    TEST 2
     @MessageExceptionHandler()
-    public void createChatmessage(@RequestBody MessageDTO messageDTO) throws URISyntaxException {
+    public void createChatmessage(MessageDTO messageDTO) throws URISyntaxException {
     	ChatmessageDTO chatmessageDTO = new ChatmessageDTO();
     	chatmessageDTO.setMessage(messageDTO.getMessage());
     	chatmessageDTO.setTime(dateTimeFormatter.format(ZonedDateTime.now()));
