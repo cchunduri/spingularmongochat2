@@ -47,6 +47,7 @@ export class ChatmessageUpdateComponent implements OnInit {
   save() {
     this.isSaving = true;
     const chatmessage = this.createFromForm();
+    console.log('ChatmessageUpdateComponent: save() + chatmessage', this.chatmessage);
     if (chatmessage.id !== undefined) {
       this.subscribeToSaveResponse(this.chatmessageService.update(chatmessage));
     } else {

@@ -77,6 +77,7 @@ export class ChatService {
         {} // header
       );
     }
+    console.log('ChatService: sendMessage(1!!!!!!!!!!!) + message', JSON.stringify({ message }));
   }
 
   subscribe() {

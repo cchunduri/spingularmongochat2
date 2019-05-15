@@ -16,6 +16,7 @@ export class ChatmessageService {
   constructor(protected http: HttpClient) {}
 
   create(chatmessage: IChatmessage): Observable<EntityResponseType> {
+    console.log('ChatmessageService: create(0) + chatmessage', chatmessage);
     return this.http.post<IChatmessage>(this.resourceUrl, chatmessage, { observe: 'response' });
   }
 

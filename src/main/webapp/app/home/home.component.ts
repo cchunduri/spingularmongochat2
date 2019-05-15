@@ -5,6 +5,12 @@ import { ChatService } from '../shared';
 
 import { LoginModalService, AccountService, Account } from 'app/core';
 
+import { Observable } from 'rxjs';
+import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+
+import { IChatmessage, Chatmessage } from 'app/shared/model/chatmessage.model';
+import { ChatmessageService } from '../entities/chatmessage/chatmessage.service';
+
 @Component({
   selector: 'jhi-home',
   templateUrl: './home.component.html',
@@ -15,12 +21,16 @@ export class HomeComponent implements OnInit {
   modalRef: NgbModalRef;
   messages: Array<Object> = [];
   message = '';
+  private _chatmessage: IChatmessage = { userLogin: null, message: null, time: null };
+
+  isSaving: boolean;
 
   constructor(
     private accountService: AccountService,
     private loginModalService: LoginModalService,
     private eventManager: JhiEventManager,
-    private chatService: ChatService
+    private chatService: ChatService,
+    protected chatmessageService: ChatmessageService
   ) {}
 
   ngOnInit() {
@@ -66,6 +76,36 @@ export class HomeComponent implements OnInit {
       return;
     }
     this.chatService.sendMessage(message);
+    this.chatmessage = message;
+    this.save(this.chatmessage);
     this.message = '';
+  }
+
+  save(chatmessage) {
+    if (this.chatmessage.id !== undefined) {
+      this.subscribeToSaveResponse(this.chatmessageService.update(this.chatmessage));
+    } else {
+      this.subscribeToSaveResponse(this.chatmessageService.create(this.chatmessage));
+    }
+  }
+
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IChatmessage>>) {
+    result.subscribe((res: HttpResponse<IChatmessage>) => this.onSaveSuccess(), (res: HttpErrorResponse) => this.onSaveError());
+  }
+
+  protected onSaveSuccess() {
+    this.isSaving = false;
+  }
+
+  protected onSaveError() {
+    this.isSaving = false;
+  }
+
+  get chatmessage() {
+    return this._chatmessage;
+  }
+
+  set chatmessage(message: any) {
+    this._chatmessage.message = message;
   }
 }
