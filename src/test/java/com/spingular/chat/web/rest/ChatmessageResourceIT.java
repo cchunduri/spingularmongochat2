@@ -94,6 +94,19 @@ public class ChatmessageResourceIT {
             .time(DEFAULT_TIME);
         return chatmessage;
     }
+    /**
+     * Create an updated entity for this test.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static Chatmessage createUpdatedEntity() {
+        Chatmessage chatmessage = new Chatmessage()
+            .userLogin(UPDATED_USER_LOGIN)
+            .message(UPDATED_MESSAGE)
+            .time(UPDATED_TIME);
+        return chatmessage;
+    }
 
     @BeforeEach
     public void initTest() {
