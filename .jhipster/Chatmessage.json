@@ -1,0 +1,27 @@
+{
+    "name": "Chatmessage",
+    "fields": [
+        {
+            "fieldName": "userLogin",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "message",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "time",
+            "fieldType": "String"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20190513212823",
+    "entityTableName": "chatmessage",
+    "dto": "mapstruct",
+    "pagination": "no",
+    "service": "serviceClass",
+    "jpaMetamodelFiltering": true,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}
