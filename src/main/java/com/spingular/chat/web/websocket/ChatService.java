@@ -11,6 +11,7 @@ import io.github.jhipster.web.util.HeaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,8 @@ public class ChatService implements ApplicationListener<SessionDisconnectEvent> 
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final SimpMessageSendingOperations messagingTemplate;
-    
+
+    @Autowired
     private ChatmessageService chatmessageService;
     
     private ChatmessageResource chatmessageResource;
@@ -72,32 +74,32 @@ public class ChatService implements ApplicationListener<SessionDisconnectEvent> 
     @MessageMapping("/chat")
     @SendTo("/chat/public")
     public MessageDTO sendChat(@Payload MessageDTO messageDTO, StompHeaderAccessor stompHeaderAccessor, Principal principal) throws URISyntaxException {
-        messageDTO.setUserLogin(principal.getName());
-    	System.out.println("! ENTERING:  createChatmessage ???????????????????????????????????????????!" + messageDTO);
+    	log.debug("Message Recieved from sender {} ", messageDTO);
+
     	ChatmessageDTO chatmessageDTO = new ChatmessageDTO();
     	chatmessageDTO.setMessage(messageDTO.getMessage());
     	chatmessageDTO.setTime(dateTimeFormatter.format(ZonedDateTime.now()));
     	chatmessageDTO.setUserLogin(messageDTO.getUserLogin());
-    	System.out.println("! chatmessageDTO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + chatmessageDTO);
-    	log.debug("REST request to save Chatmessage : {}", chatmessageDTO);
-        createChatmessage(chatmessageDTO);
+    	log.debug("Saving Chat Message : {}", chatmessageDTO);
+        chatmessageService.save(chatmessageDTO);
+
         return setupMessageDTO(messageDTO, stompHeaderAccessor, principal);
     }
 
 	// TEST 3
-	@PostMapping("/chatmessages")
-	public ResponseEntity<ChatmessageDTO> createChatmessage(@RequestBody ChatmessageDTO chatmessageDTO) throws URISyntaxException {
-		log.debug("REST request to save Chatmessage : {}", chatmessageDTO);
-		if (chatmessageDTO.getId() != null) {
-			throw new BadRequestAlertException("A new chatmessage cannot already have an ID", ENTITY_NAME, "idexists");
-		}
-		ChatmessageDTO result = chatmessageService.save(chatmessageDTO);
-		System.out.println("! RESULT:  createChatmessage ???????????????????????????????????????????!" + result);
-		return ResponseEntity
-				.created(new URI("/api/chatmessages/" + result.getId())).headers(HeaderUtil
-						.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-				.body(result);
-	} 
+//	@PostMapping("/chatmessages")
+//	public ResponseEntity<ChatmessageDTO> createChatmessage(@RequestBody ChatmessageDTO chatmessageDTO) throws URISyntaxException {
+//		log.debug("REST request to save Chatmessage : {}", chatmessageDTO);
+//		if (chatmessageDTO.getId() != null) {
+//			throw new BadRequestAlertException("A new chatmessage cannot already have an ID", ENTITY_NAME, "idexists");
+//		}
+//		ChatmessageDTO result = chatmessageService.save(chatmessageDTO);
+//		System.out.println("! RESULT:  createChatmessage ???????????????????????????????????????????!" + result);
+//		return ResponseEntity
+//				.created(new URI("/api/chatmessages/" + result.getId())).headers(HeaderUtil
+//						.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+//				.body(result);
+//	}
 ////    TEST 2
 ////    @MessageExceptionHandler()
 //    public void createChatmessage(MessageDTO messageDTO) throws URISyntaxException {

@@ -73,11 +73,11 @@ export class ChatService {
     if (this.stompClient !== null && this.stompClient.connected) {
       this.stompClient.send(
         '/chat', // destination
-        JSON.stringify({ message }), // body
+        JSON.stringify(message), // body
         {} // header
       );
     }
-    console.log('ChatService: sendMessage(1!!!!!!!!!!!) + message', JSON.stringify({ message }));
+    console.log('ChatService: sendMessage(1!!!!!!!!!!!) + message', JSON.stringify(message));
   }
 
   subscribe() {

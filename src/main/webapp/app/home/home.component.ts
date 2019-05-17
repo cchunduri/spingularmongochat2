@@ -75,7 +75,17 @@ export class HomeComponent implements OnInit {
     if (message.length === 0) {
       return;
     }
-    this.chatService.sendMessage(message);
+
+    const chatMessage = {
+      message: '',
+      userLogin: '',
+      time: new Date()
+    };
+    chatMessage.message = message;
+    chatMessage.userLogin = this.account.login;
+    chatMessage.time = new Date();
+
+    this.chatService.sendMessage(chatMessage);
     this.chatmessage = message;
     // OPTION 1) Saved through the frontend flow (Temp Disabled)
     //    this.save(this.chatmessage);
