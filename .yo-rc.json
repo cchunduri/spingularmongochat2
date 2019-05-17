@@ -4,7 +4,7 @@
       "packageName": "com.spingular.chat",
       "nativeLanguage": "en"
     },
-    "jhipsterVersion": "6.0.0",
+    "jhipsterVersion": "6.0.1",
     "applicationType": "monolith",
     "baseName": "spingularmongochat2",
     "packageName": "com.spingular.chat",
